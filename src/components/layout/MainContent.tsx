@@ -23,7 +23,7 @@ export const MainContent: React.FC = () => {
     return <SettingsPage />;
   }
 
-  // 如果是首页
+  // 如果是首页，显示欢迎页面
   if (currentPage === "home") {
     return <WelcomePage />;
   }
@@ -38,6 +38,6 @@ export const MainContent: React.FC = () => {
     return <NoteEditorView />;
   }
 
-  // 默认显示笔记列表
+  // 如果选择了仓库，显示笔记列表
   return <NotesListView />;
 };

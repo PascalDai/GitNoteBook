@@ -99,6 +99,10 @@ export const RepoSidebar: React.FC<RepoSidebarProps> = ({ collapsed }) => {
     // 清空当前笔记状态，准备加载新仓库的笔记
     setNotes([]);
     setCurrentNote(null);
+    // 确保页面状态不是首页，这样MainContent会显示笔记列表
+    if (setCurrentPage) {
+      setCurrentPage("notes");
+    }
   };
 
   /**
