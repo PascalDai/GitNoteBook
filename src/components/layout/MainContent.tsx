@@ -2,7 +2,7 @@ import React from "react";
 import { useAppStore } from "../../stores/appStore";
 import { WelcomePage } from "../features/WelcomePage";
 import { NotesListView } from "../features/NotesListView";
-import { NoteEditorView } from "../features/NoteEditorView";
+import { EnhancedNoteEditor } from "../features/EnhancedNoteEditor";
 import { AuthPage } from "../features/AuthPage";
 import { SettingsPage } from "../features/SettingsPage";
 
@@ -35,7 +35,12 @@ export const MainContent: React.FC = () => {
 
   // 如果选择了笔记，显示编辑器
   if (currentNote) {
-    return <NoteEditorView />;
+    return (
+      <EnhancedNoteEditor
+        noteId={currentNote.id.toString()}
+        onBack={() => useAppStore.getState().setCurrentNote(null)}
+      />
+    );
   }
 
   // 如果选择了仓库，显示笔记列表

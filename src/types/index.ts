@@ -48,6 +48,7 @@ export interface GitHubRepo {
   open_issues: number;
   watchers: number;
   default_branch_ref: string;
+  owner: GitHubUser;
 }
 
 export interface GitHubIssue {
@@ -120,6 +121,7 @@ export interface Note {
   title: string;
   content: string;
   labels: GitHubLabel[];
+  tags?: string[];
   createdAt: string;
   updatedAt: string;
   githubIssue: GitHubIssue;
