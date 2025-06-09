@@ -2,6 +2,7 @@ import React from "react";
 import { useAppStore } from "../../stores/appStore";
 import { WelcomePage } from "../features/WelcomePage";
 import { NotesListView } from "../features/NotesListView";
+import { NoteDetailView } from "../features/NoteDetailView";
 import { EnhancedNoteEditor } from "../features/EnhancedNoteEditor";
 import { AuthPage } from "../features/AuthPage";
 import { SettingsPage } from "../features/SettingsPage";
@@ -33,12 +34,26 @@ export const MainContent: React.FC = () => {
     return <WelcomePage />;
   }
 
-  // 如果选择了笔记，显示编辑器
-  if (currentNote) {
+  // 如果是详情页面
+  if (currentPage === "detail" && currentNote) {
+    return (
+      <NoteDetailView
+        noteId={currentNote.id.toString()}
+        onBack={() => {
+          useAppStore.getState().setCurrentNote(null);
+          useAppStore.getState().setCurrentPage("notes");
+        }}
+        onEdit={() => useAppStore.getState().setCurrentPage("editor")}
+      />
+    );
+  }
+
+  // 如果是编辑页面
+  if (currentPage === "editor" && currentNote) {
     return (
       <EnhancedNoteEditor
         noteId={currentNote.id.toString()}
-        onBack={() => useAppStore.getState().setCurrentNote(null)}
+        onBack={() => useAppStore.getState().setCurrentPage("detail")}
       />
     );
   }

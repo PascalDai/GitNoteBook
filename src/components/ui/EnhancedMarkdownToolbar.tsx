@@ -18,6 +18,8 @@ import {
   Minus,
   CheckSquare,
   MoreHorizontal,
+  BarChart3,
+  GitBranch,
 } from "lucide-react";
 import Button from "./Button";
 
@@ -78,6 +80,70 @@ export const EnhancedMarkdownToolbar: React.FC<
 
 `;
     onInsert(taskList, 0);
+  };
+
+  /**
+   * 插入Mermaid图表
+   */
+  const insertMermaidChart = (type = "flowchart") => {
+    const charts = {
+      flowchart: `\`\`\`mermaid
+graph TD
+    A[开始] --> B{条件判断}
+    B -->|是| C[执行操作1]
+    B -->|否| D[执行操作2]
+    C --> E[结束]
+    D --> E
+\`\`\`
+
+`,
+      sequence: `\`\`\`mermaid
+sequenceDiagram
+    participant A as 用户
+    participant B as 系统
+    A->>B: 发送请求
+    B->>A: 返回响应
+    A->>B: 确认收到
+\`\`\`
+
+`,
+      gantt: `\`\`\`mermaid
+gantt
+    title 项目进度
+    dateFormat  YYYY-MM-DD
+    section 设计阶段
+    需求分析      :done, des1, 2024-01-01, 2024-01-05
+    界面设计      :done, des2, 2024-01-06, 2024-01-10
+    section 开发阶段
+    后端开发      :active, dev1, 2024-01-11, 2024-01-20
+    前端开发      :dev2, 2024-01-15, 2024-01-25
+\`\`\`
+
+`,
+      pie: `\`\`\`mermaid
+pie title 数据分布
+    "A类" : 42
+    "B类" : 35
+    "C类" : 23
+\`\`\`
+
+`,
+      gitgraph: `\`\`\`mermaid
+gitGraph
+    commit
+    branch develop
+    checkout develop
+    commit
+    commit
+    checkout main
+    merge develop
+    commit
+\`\`\`
+
+`,
+    };
+
+    onInsert(charts[type as keyof typeof charts] || charts.flowchart, 0);
   };
 
   const basicToolbarItems = [
@@ -153,19 +219,9 @@ export const EnhancedMarkdownToolbar: React.FC<
 
   const advancedToolbarItems = [
     {
-      icon: FileCode,
-      title: "代码块",
-      action: () => insertCodeBlock(),
-    },
-    {
       icon: Table,
       title: "表格",
       action: insertTable,
-    },
-    {
-      icon: Calculator,
-      title: "数学公式",
-      action: () => insertMathFormula(false),
     },
     {
       icon: Minus,
@@ -286,6 +342,42 @@ export const EnhancedMarkdownToolbar: React.FC<
     </div>
   );
 
+  /**
+   * Mermaid图表下拉菜单
+   */
+  const MermaidDropdown = () => {
+    const mermaidTypes = [
+      { type: "flowchart", label: "流程图", icon: GitBranch },
+      { type: "sequence", label: "时序图", icon: MoreHorizontal },
+      { type: "gantt", label: "甘特图", icon: BarChart3 },
+      { type: "pie", label: "饼图", icon: BarChart3 },
+      { type: "gitgraph", label: "Git图", icon: GitBranch },
+    ];
+
+    return (
+      <div className="relative group">
+        <button
+          className="p-2 h-8 w-8 hover:bg-gray-200 dark:hover:bg-github-border rounded-md transition-colors duration-200 flex items-center justify-center"
+          title="Mermaid图表"
+        >
+          <BarChart3 className="w-4 h-4 text-gray-600 dark:text-github-text-secondary" />
+        </button>
+        <div className="absolute top-full left-0 mt-1 bg-white dark:bg-github-surface border border-gray-200 dark:border-github-border rounded-md shadow-lg opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 min-w-32">
+          {mermaidTypes.map(({ type, label, icon: Icon }) => (
+            <button
+              key={type}
+              onClick={() => insertMermaidChart(type)}
+              className="block w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-github-border first:rounded-t-md last:rounded-b-md flex items-center gap-2"
+            >
+              <Icon className="w-4 h-4" />
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div
       className={`flex items-center gap-1 p-2 border-b border-gray-200 dark:border-github-border bg-gray-50 dark:bg-github-surface ${className}`}
@@ -318,9 +410,10 @@ export const EnhancedMarkdownToolbar: React.FC<
           <div className="w-px h-6 bg-gray-300 dark:bg-github-border mx-1" />
 
           <CodeBlockDropdown />
+          <MermaidDropdown />
           <MathDropdown />
 
-          {advancedToolbarItems.slice(1).map((item, index) => {
+          {advancedToolbarItems.map((item, index) => {
             const Icon = item.icon!;
             return (
               <button

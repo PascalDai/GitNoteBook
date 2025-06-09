@@ -11,6 +11,7 @@ import {
 } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { Copy, Check } from "lucide-react";
 import "katex/dist/katex.min.css";
+import { MermaidDiagram } from "./MermaidDiagram";
 
 interface EnhancedMarkdownRendererProps {
   content: string;
@@ -49,6 +50,41 @@ export const EnhancedMarkdownRenderer: React.FC<
     const code = String(children).replace(/\n$/, "");
     const codeId = `${language}-${code.slice(0, 50)}`;
     const isCopied = copiedCode === codeId;
+
+    // 处理Mermaid图表
+    if (language === "mermaid") {
+      return (
+        <div className="my-4">
+          <div className="flex items-center justify-between px-4 py-2 bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 rounded-t-md">
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
+              MERMAID DIAGRAM
+            </span>
+            <button
+              onClick={() => copyToClipboard(code, language)}
+              className="flex items-center gap-1 px-2 py-1 text-xs bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded transition-colors duration-200"
+              title="复制代码"
+            >
+              {isCopied ? (
+                <>
+                  <Check className="w-3 h-3" />
+                  已复制
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3 h-3" />
+                  复制
+                </>
+              )}
+            </button>
+          </div>
+          <MermaidDiagram
+            chart={code}
+            isDarkMode={isDarkMode}
+            className="border border-gray-200 dark:border-gray-700 border-t-0 rounded-b-md"
+          />
+        </div>
+      );
+    }
 
     if (match) {
       return (

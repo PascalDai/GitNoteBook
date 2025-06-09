@@ -335,3 +335,4 @@ export const RepoSidebar: React.FC<RepoSidebarProps> = ({ collapsed }) => {
     </div>
   );
 };
+ 

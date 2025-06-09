@@ -4,6 +4,7 @@ import { EnhancedMarkdownRenderer } from "../ui/EnhancedMarkdownRenderer";
 import { EnhancedMarkdownToolbar } from "../ui/EnhancedMarkdownToolbar";
 import { FindReplaceDialog } from "../ui/FindReplaceDialog";
 import Button from "../ui/Button";
+import { githubService } from "../../services/github";
 import {
   Save,
   ArrowLeft,
@@ -120,15 +121,30 @@ export const EnhancedNoteEditor: React.FC<EnhancedNoteEditorProps> = ({
    * 自动保存功能
    */
   const handleAutoSave = async () => {
-    if (!currentNote || !hasUnsavedChanges || isSaving) return;
+    if (!currentNote || !hasUnsavedChanges || isSaving || !selectedRepo) return;
 
     try {
       setIsSaving(true);
+
+      // 调用GitHub API更新Issue
+      const [owner, repo] = selectedRepo.full_name.split("/");
+      await githubService.updateIssue(
+        owner,
+        repo,
+        currentNote.githubIssue.number,
+        title.trim() || "无标题",
+        content,
+        tags
+      );
+
+      // 同时更新本地状态
       await updateNote(currentNote.id, {
         title: title.trim() || "无标题",
         content,
         tags,
+        updatedAt: new Date().toISOString(),
       });
+
       setLastSaved(new Date());
       setHasUnsavedChanges(false);
     } catch (error) {
@@ -147,10 +163,23 @@ export const EnhancedNoteEditor: React.FC<EnhancedNoteEditorProps> = ({
     try {
       setIsSaving(true);
 
+      // 调用GitHub API更新Issue
+      const [owner, repo] = selectedRepo.full_name.split("/");
+      await githubService.updateIssue(
+        owner,
+        repo,
+        currentNote.githubIssue.number,
+        title.trim() || "无标题",
+        content,
+        tags // 使用tags作为标签
+      );
+
+      // 同时更新本地状态
       await updateNote(currentNote.id, {
         title: title.trim() || "无标题",
         content,
         tags,
+        updatedAt: new Date().toISOString(),
       });
 
       setLastSaved(new Date());

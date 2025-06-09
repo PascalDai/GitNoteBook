@@ -96,6 +96,19 @@ export class GitHubService {
         open_issues: repo.open_issues,
         watchers: repo.watchers,
         default_branch_ref: repo.default_branch,
+        owner: {
+          id: repo.owner?.id || 0,
+          login: repo.owner?.login || '',
+          name: repo.owner?.name || null,
+          email: repo.owner?.email || null,
+          avatar_url: repo.owner?.avatar_url || '',
+          html_url: repo.owner?.html_url || '',
+          bio: null,
+          public_repos: 0,
+          followers: 0,
+          following: 0,
+          created_at: '',
+        },
       }));
     } catch (error: any) {
       throw new Error(`Failed to fetch repositories: ${error.message}`);
@@ -287,6 +300,77 @@ export class GitHubService {
       });
     } catch (error: any) {
       throw new Error(`Failed to update issue: ${error.message}`);
+    }
+  }
+
+  /**
+   * 获取Issue的评论
+   */
+  async getIssueComments(owner: string, repo: string, issueNumber: number): Promise<any[]> {
+    if (!this.octokit) {
+      throw new Error('GitHub token not set');
+    }
+
+    try {
+      const { data } = await this.octokit.rest.issues.listComments({
+        owner,
+        repo,
+        issue_number: issueNumber,
+        per_page: 100,
+      });
+
+      return data.map(comment => ({
+        id: comment.id,
+        user: {
+          login: comment.user?.login || '',
+          avatar_url: comment.user?.avatar_url || '',
+          html_url: comment.user?.html_url || '',
+        },
+        created_at: comment.created_at,
+        updated_at: comment.updated_at,
+        body: comment.body || '',
+        html_url: comment.html_url,
+      }));
+    } catch (error: any) {
+      throw new Error(`Failed to fetch comments: ${error.message}`);
+    }
+  }
+
+  /**
+   * 创建Issue评论
+   */
+  async createIssueComment(
+    owner: string,
+    repo: string,
+    issueNumber: number,
+    body: string
+  ): Promise<any> {
+    if (!this.octokit) {
+      throw new Error('GitHub token not set');
+    }
+
+    try {
+      const { data } = await this.octokit.rest.issues.createComment({
+        owner,
+        repo,
+        issue_number: issueNumber,
+        body,
+      });
+
+      return {
+        id: data.id,
+        user: {
+          login: data.user?.login || '',
+          avatar_url: data.user?.avatar_url || '',
+          html_url: data.user?.html_url || '',
+        },
+        created_at: data.created_at,
+        updated_at: data.updated_at,
+        body: data.body || '',
+        html_url: data.html_url,
+      };
+    } catch (error: any) {
+      throw new Error(`Failed to create comment: ${error.message}`);
     }
   }
 }

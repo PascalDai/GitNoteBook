@@ -128,6 +128,8 @@ export const NotesListView: React.FC = () => {
         githubIssue: issue,
       });
     }
+    // 导航到详情页而不是编辑页
+    setCurrentPage("detail");
   };
 
   /**
@@ -144,6 +146,8 @@ export const NotesListView: React.FC = () => {
       updatedAt: new Date().toISOString(),
       githubIssue: null as any, // 新笔记还没有对应的GitHub Issue
     });
+    // 新建笔记直接跳转到编辑页
+    setCurrentPage("editor");
   };
 
   /**
@@ -448,3 +452,4 @@ export const NotesListView: React.FC = () => {
     </div>
   );
 };
+ 

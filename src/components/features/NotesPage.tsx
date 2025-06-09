@@ -489,3 +489,4 @@ export const NotesPage: React.FC = () => {
     </div>
   );
 };
+ 
