@@ -22,6 +22,25 @@ export const isTokenError = (error: string): boolean => {
 };
 
 /**
+ * 检查是否是权限相关错误
+ */
+export const isPermissionError = (error: string): boolean => {
+  const permissionErrorKeywords = [
+    'resource not accessible',
+    'permission',
+    'forbidden',
+    'access denied',
+    'insufficient privileges',
+    'not accessible by personal access token'
+  ];
+  
+  const lowerError = error.toLowerCase();
+  return permissionErrorKeywords.some(keyword => 
+    lowerError.includes(keyword.toLowerCase())
+  );
+};
+
+/**
  * 获取用户友好的错误消息
  */
 export const getFriendlyErrorMessage = (error: string): string => {
@@ -44,5 +63,24 @@ export const getFriendlyErrorMessage = (error: string): string => {
  * 获取重试按钮文本
  */
 export const getRetryButtonText = (error: string): string => {
-  return isTokenError(error) ? '重新认证' : '重试';
+  if (isTokenError(error)) {
+    return "重新设置Token";
+  } else if (isPermissionError(error)) {
+    return "检查Token权限";
+  } else {
+    return "重试";
+  }
+};
+
+/**
+ * 获取错误建议
+ */
+export const getErrorSuggestion = (error: string): string => {
+  if (isTokenError(error)) {
+    return "请检查您的GitHub Personal Access Token是否正确";
+  } else if (isPermissionError(error)) {
+    return "您的Token缺少必要权限。请重新生成Token并确保勾选了'repo'权限（完整的仓库访问权限）";
+  } else {
+    return "请稍后重试，或检查网络连接";
+  }
 }; 

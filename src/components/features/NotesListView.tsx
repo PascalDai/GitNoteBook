@@ -22,7 +22,6 @@ import type { GitHubIssue, Note } from "../../types";
  * 笔记列表视图组件
  */
 export const NotesListView: React.FC = () => {
-  const [issues, setIssues] = useState<GitHubIssue[]>([]);
   const [filteredIssues, setFilteredIssues] = useState<GitHubIssue[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterState, setFilterState] = useState<"all" | "open" | "closed">(
@@ -31,7 +30,8 @@ export const NotesListView: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { selectedRepo, setCurrentNote, setCurrentPage } = useAppStore();
+  const { selectedRepo, notes, setNotes, setCurrentNote, setCurrentPage } =
+    useAppStore();
 
   /**
    * 加载仓库的Issues（笔记）
@@ -45,7 +45,19 @@ export const NotesListView: React.FC = () => {
 
       const [owner, repo] = selectedRepo.full_name.split("/");
       const repoIssues = await githubService.getRepoIssues(owner, repo);
-      setIssues(repoIssues);
+
+      // 转换为Note格式并保存到全局状态
+      const notesFromIssues: Note[] = repoIssues.map((issue) => ({
+        id: issue.id,
+        title: issue.title,
+        content: issue.body || "",
+        labels: issue.labels,
+        createdAt: issue.created_at,
+        updatedAt: issue.updated_at,
+        githubIssue: issue,
+      }));
+
+      setNotes(notesFromIssues);
     } catch (err: any) {
       setError(err.message || "加载笔记失败");
     } finally {
@@ -57,6 +69,10 @@ export const NotesListView: React.FC = () => {
    * 应用搜索和筛选
    */
   const applyFilters = () => {
+    // 从notes转换为issues进行筛选
+    const issues = notes
+      .map((note) => note.githubIssue)
+      .filter(Boolean) as GitHubIssue[];
     let filtered = issues;
 
     // 状态筛选
@@ -96,15 +112,22 @@ export const NotesListView: React.FC = () => {
    * 选择笔记进入编辑模式
    */
   const handleNoteSelect = (issue: GitHubIssue) => {
-    setCurrentNote({
-      id: issue.id,
-      title: issue.title,
-      content: issue.body || "",
-      labels: issue.labels,
-      createdAt: issue.created_at,
-      updatedAt: issue.updated_at,
-      githubIssue: issue,
-    });
+    // 从全局状态中找到对应的note
+    const note = notes.find((n) => n.id === issue.id);
+    if (note) {
+      setCurrentNote(note);
+    } else {
+      // 如果没找到，创建一个临时的note对象
+      setCurrentNote({
+        id: issue.id,
+        title: issue.title,
+        content: issue.body || "",
+        labels: issue.labels,
+        createdAt: issue.created_at,
+        updatedAt: issue.updated_at,
+        githubIssue: issue,
+      });
+    }
   };
 
   /**
@@ -165,10 +188,10 @@ export const NotesListView: React.FC = () => {
     return color.startsWith("#") ? color : `#${color}`;
   };
 
-  // 监听搜索和筛选变化
+  // 监听搜索和筛选变化，以及notes变化
   useEffect(() => {
     applyFilters();
-  }, [searchQuery, filterState, issues]);
+  }, [searchQuery, filterState, notes]);
 
   // 组件挂载时加载Issues
   useEffect(() => {
@@ -231,10 +254,13 @@ export const NotesListView: React.FC = () => {
 
         {/* 统计信息 */}
         <div className="flex items-center gap-6 text-sm text-gray-600 dark:text-github-text-secondary mt-4">
-          <span>共 {issues.length} 条笔记</span>
-          <span>进行中 {issues.filter((i) => i.state === "open").length}</span>
+          <span>共 {notes.length} 条笔记</span>
           <span>
-            已完成 {issues.filter((i) => i.state === "closed").length}
+            进行中 {notes.filter((n) => n.githubIssue?.state === "open").length}
+          </span>
+          <span>
+            已完成{" "}
+            {notes.filter((n) => n.githubIssue?.state === "closed").length}
           </span>
           {searchQuery && <span>筛选结果 {filteredIssues.length}</span>}
         </div>

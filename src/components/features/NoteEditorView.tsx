@@ -10,17 +10,29 @@ import {
   CheckCircle,
   Loader2,
   AlertCircle,
+  Settings,
 } from "lucide-react";
 import Button from "../ui/Button";
 import { useAppStore } from "../../stores/appStore";
 import { githubService } from "../../services/github";
+import {
+  isTokenError,
+  isPermissionError,
+  getErrorSuggestion,
+} from "../../utils/errorHelpers";
 
 /**
  * 笔记编辑器视图组件
  */
 export const NoteEditorView: React.FC = () => {
-  const { selectedRepo, currentNote, setCurrentNote, addNote, updateNote } =
-    useAppStore();
+  const {
+    selectedRepo,
+    currentNote,
+    setCurrentNote,
+    addNote,
+    updateNote,
+    setCurrentPage,
+  } = useAppStore();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -115,14 +127,32 @@ export const NoteEditorView: React.FC = () => {
 
       setSuccess(true);
 
-      // 延迟显示成功消息
+      // 延迟显示成功消息，然后返回笔记列表
       setTimeout(() => {
         setSuccess(false);
-      }, 3000);
+        // 保存成功后返回笔记列表，这样用户可以看到新保存的笔记
+        if (currentNote && currentNote.id === 0) {
+          // 如果是新建笔记，返回列表查看
+          setCurrentNote(null);
+        }
+      }, 1500); // 缩短延迟时间，让用户更快看到结果
     } catch (err: any) {
       setError(err.message || "保存失败");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  /**
+   * 处理错误重试
+   */
+  const handleErrorAction = () => {
+    if (error && (isTokenError(error) || isPermissionError(error))) {
+      // Token或权限错误，跳转到设置页面
+      setCurrentPage("settings");
+    } else {
+      // 其他错误，清除错误状态重试
+      setError(null);
     }
   };
 
@@ -349,6 +379,41 @@ export const NoteEditorView: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* 错误信息 */}
+        {error && (
+          <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-800 dark:text-red-300 mb-1">
+                  保存失败
+                </p>
+                <p className="text-sm text-red-700 dark:text-red-400 mb-2">
+                  {error}
+                </p>
+                <p className="text-sm text-red-600 dark:text-red-400 mb-3">
+                  {getErrorSuggestion(error)}
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleErrorAction}
+                  className="text-red-700 dark:text-red-300 border-red-300 dark:border-red-600 hover:bg-red-100 dark:hover:bg-red-900/30"
+                >
+                  {isTokenError(error) || isPermissionError(error) ? (
+                    <>
+                      <Settings className="w-4 h-4 mr-2" />
+                      前往设置
+                    </>
+                  ) : (
+                    "重试"
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -269,9 +269,25 @@ export const SettingsPage: React.FC = () => {
                   tokens
                 </li>
                 <li>点击 "Generate new token (classic)"</li>
-                <li>设置过期时间和权限范围（至少需要 repo 权限）</li>
+                <li>设置过期时间（建议选择较长时间，如90天或无过期）</li>
+                <li className="font-medium">
+                  <strong>重要：</strong>必须勾选
+                  <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded mx-1">
+                    repo
+                  </code>
+                  权限（完整的仓库访问权限）
+                </li>
                 <li>复制生成的 Token 并粘贴到上方输入框</li>
               </ol>
+
+              <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-md">
+                <p className="text-sm text-yellow-800 dark:text-yellow-300">
+                  <strong>常见问题：</strong>如果保存笔记时出现"Resource not
+                  accessible"错误，
+                  说明Token缺少Issues权限，请重新生成Token并确保勾选了repo权限。
+                </p>
+              </div>
+
               <div className="mt-3">
                 <a
                   href="https://github.com/settings/tokens"
@@ -291,7 +307,7 @@ export const SettingsPage: React.FC = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                      d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
                     />
                   </svg>
                 </a>
