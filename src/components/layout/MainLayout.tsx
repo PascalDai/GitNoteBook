@@ -61,9 +61,8 @@ export const MainLayout: React.FC = () => {
     }
   };
 
-  // 如果未认证或没有token，显示认证页面
+  // 如果未认证或没有token，不渲染MainLayout
   if (!isAuthenticated || !token) {
-    setCurrentPage("auth");
     return null;
   }
 

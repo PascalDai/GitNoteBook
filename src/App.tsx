@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useAppStore } from "./stores/appStore";
 import { MainLayout } from "./components/layout/MainLayout";
 import HomePage from "./components/features/HomePage";
+import { AuthPage } from "./components/features/AuthPage";
 
 /**
  * 主应用组件
@@ -32,12 +33,17 @@ function App() {
     }
   }, [theme]);
 
+  // 如果在认证页面，直接显示认证页面
+  if (currentPage === "auth") {
+    return <AuthPage />;
+  }
+
   // 如果未认证且不在认证页面，显示首页
-  if (!isAuthenticated && currentPage !== "auth") {
+  if (!isAuthenticated) {
     return <HomePage />;
   }
 
-  // 已认证用户或在认证页面时，使用MainLayout
+  // 已认证用户使用MainLayout
   return <MainLayout />;
 }
 

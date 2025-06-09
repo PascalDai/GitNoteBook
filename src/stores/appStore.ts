@@ -83,7 +83,7 @@ export const useAppStore = create<AppStore>()(
           selectedRepo: null,
           notes: [],
           currentNote: null,
-          currentPage: 'auth',
+          currentPage: 'home',
         }),
       
       // 页面导航
