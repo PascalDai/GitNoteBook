@@ -46,7 +46,7 @@ const initialState: AppState = {
   user: null,
   
   // 当前页面
-  currentPage: 'auth',
+  currentPage: 'home',
   
   // 仓库和笔记
   selectedRepo: null,

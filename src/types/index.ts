@@ -100,7 +100,7 @@ export interface AppState {
   user: GitHubUser | null;
   
   // 当前页面
-  currentPage: 'auth' | 'notes' | 'editor' | 'settings';
+  currentPage: 'home' | 'auth' | 'repos' | 'notes' | 'editor' | 'settings';
   
   // 仓库和笔记
   selectedRepo: GitHubRepo | null;
@@ -209,7 +209,7 @@ export interface ModalProps {
 }
 
 // 路由类型
-export type PageType = 'auth' | 'notes' | 'editor' | 'settings';
+export type PageType = 'home' | 'auth' | 'repos' | 'notes' | 'editor' | 'settings';
 
 // 主题类型
 export type ThemeType = 'light' | 'dark' | 'system'; 

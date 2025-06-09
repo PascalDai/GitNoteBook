@@ -1,9 +1,21 @@
-import { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Github, Moon, Sun, Monitor } from "lucide-react";
+import { useAppStore } from "./stores/appStore";
+import { AuthPage } from "./components/features/AuthPage";
+import { RepoSelectionPage } from "./components/features/RepoSelectionPage";
+import { NotesPage } from "./components/features/NotesPage";
+import { EditorPage } from "./components/features/EditorPage";
+import Button from "./components/ui/Button";
 
 function App() {
-  const [theme, setTheme] = useState<"light" | "dark" | "system">("system");
-  const [isDark, setIsDark] = useState(false);
+  const {
+    currentPage,
+    theme,
+    setTheme,
+    setCurrentPage,
+    isAuthenticated,
+    selectedRepo,
+  } = useAppStore();
 
   // 主题切换逻辑
   useEffect(() => {
@@ -12,11 +24,9 @@ function App() {
         const systemDark = window.matchMedia(
           "(prefers-color-scheme: dark)"
         ).matches;
-        setIsDark(systemDark);
         document.documentElement.classList.toggle("dark", systemDark);
       } else {
         const dark = theme === "dark";
-        setIsDark(dark);
         document.documentElement.classList.toggle("dark", dark);
       }
     };
@@ -52,14 +62,44 @@ function App() {
     }
   };
 
+  // 根据当前页面和认证状态渲染不同组件
+  if (currentPage === "auth") {
+    return <AuthPage />;
+  }
+
+  if (currentPage === "repos") {
+    // 仓库选择页面：需要先认证
+    if (!isAuthenticated) {
+      return <AuthPage />;
+    }
+    return <RepoSelectionPage />;
+  }
+
+  if (currentPage === "notes") {
+    // 笔记管理页面：需要认证且选择仓库
+    if (!isAuthenticated) {
+      return <AuthPage />;
+    }
+    if (!selectedRepo) {
+      return <RepoSelectionPage />;
+    }
+    return <NotesPage />;
+  }
+
+  if (currentPage === "editor") {
+    // 编辑器页面：需要认证且选择仓库
+    if (!isAuthenticated) {
+      return <AuthPage />;
+    }
+    if (!selectedRepo) {
+      return <RepoSelectionPage />;
+    }
+    return <EditorPage />;
+  }
+
+  // 默认首页
   return (
     <div className="min-h-screen bg-white dark:bg-github-bg text-gray-900 dark:text-github-text transition-colors duration-200">
-      {/* 测试Tailwind CSS */}
-      <div className="p-4 bg-red-100 border border-red-300 text-red-800 mb-4">
-        <p className="font-bold">Tailwind CSS 测试</p>
-        <p>如果您看到这个红色的框，说明Tailwind CSS正在工作！</p>
-      </div>
-
       {/* 头部导航 */}
       <header className="border-b border-gray-200 dark:border-github-border bg-white dark:bg-github-surface">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -95,7 +135,7 @@ function App() {
 
           {/* 功能卡片 */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div className="card p-6">
+            <div className="bg-white dark:bg-github-surface rounded-lg shadow-sm border border-gray-200 dark:border-github-border p-6">
               <div className="w-12 h-12 bg-github-accent rounded-lg flex items-center justify-center mx-auto mb-4">
                 <Github className="w-6 h-6 text-white" />
               </div>
@@ -105,7 +145,7 @@ function App() {
               </p>
             </div>
 
-            <div className="card p-6">
+            <div className="bg-white dark:bg-github-surface rounded-lg shadow-sm border border-gray-200 dark:border-github-border p-6">
               <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-6 h-6 text-white"
@@ -123,11 +163,11 @@ function App() {
               </div>
               <h3 className="text-lg font-semibold mb-2">Markdown编辑</h3>
               <p className="text-gray-600 dark:text-github-muted">
-                强大的Markdown编辑器，支持实时预览
+                强大的Monaco编辑器，支持实时预览和语法高亮
               </p>
             </div>
 
-            <div className="card p-6">
+            <div className="bg-white dark:bg-github-surface rounded-lg shadow-sm border border-gray-200 dark:border-github-border p-6">
               <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-4">
                 <svg
                   className="w-6 h-6 text-white"
@@ -139,57 +179,41 @@ function App() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     strokeWidth={2}
-                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                    d="M13 10V3L4 14h7v7l9-11h-7z"
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold mb-2">标签管理</h3>
+              <h3 className="text-lg font-semibold mb-2">跨平台同步</h3>
               <p className="text-gray-600 dark:text-github-muted">
-                使用GitHub标签系统组织和分类笔记
+                基于Tauri的桌面应用，数据自动同步到GitHub
               </p>
             </div>
           </div>
 
-          {/* 开始按钮 */}
+          {/* 开始使用按钮 */}
           <div className="space-y-4">
-            <button className="btn-primary text-lg px-8 py-3">开始使用</button>
+            <Button
+              onClick={() => setCurrentPage(isAuthenticated ? "repos" : "auth")}
+              size="lg"
+              className="px-8 py-3 text-lg"
+            >
+              {isAuthenticated ? "选择仓库" : "开始使用"}
+            </Button>
             <p className="text-sm text-gray-500 dark:text-github-muted">
-              需要GitHub Personal Access Token进行认证
+              需要GitHub Personal Access Token
             </p>
           </div>
         </div>
+      </main>
 
-        {/* 状态信息 */}
-        <div className="mt-12 p-4 bg-gray-50 dark:bg-github-surface rounded-lg">
-          <h3 className="text-lg font-semibold mb-2">项目状态</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div>
-              <span className="text-gray-600 dark:text-github-muted">
-                技术栈:
-              </span>
-              <p className="font-medium">Tauri + React + Tailwind</p>
-            </div>
-            <div>
-              <span className="text-gray-600 dark:text-github-muted">
-                当前主题:
-              </span>
-              <p className="font-medium capitalize">{theme}</p>
-            </div>
-            <div>
-              <span className="text-gray-600 dark:text-github-muted">
-                深色模式:
-              </span>
-              <p className="font-medium">{isDark ? "已启用" : "已禁用"}</p>
-            </div>
-            <div>
-              <span className="text-gray-600 dark:text-github-muted">
-                状态:
-              </span>
-              <p className="font-medium text-green-600">开发中</p>
-            </div>
+      {/* 页脚 */}
+      <footer className="border-t border-gray-200 dark:border-github-border bg-white dark:bg-github-surface mt-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center text-gray-600 dark:text-github-muted">
+            <p>© 2024 GitNoteBook. 基于 Tauri + React + GitHub API 构建</p>
           </div>
         </div>
-      </main>
+      </footer>
     </div>
   );
 }
