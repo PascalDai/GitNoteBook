@@ -174,7 +174,7 @@ export const AuthPage: React.FC = () => {
                     onKeyPress={handleKeyPress}
                     placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
                     disabled={isValidating}
-                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-github-border rounded-md shadow-sm placeholder-gray-400 dark:placeholder-github-text-secondary focus:outline-none focus:ring-2 focus:ring-github-accent-emphasis focus:border-github-accent-emphasis bg-white dark:bg-github-canvas-default text-gray-900 dark:text-github-text disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-github-border rounded-md shadow-sm placeholder-gray-400 dark:placeholder-github-text-secondary focus:outline-none focus:ring-2 focus:ring-github-accent-emphasis focus:border-github-accent-emphasis bg-white dark:bg-github-surface text-gray-900 dark:text-github-text disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>

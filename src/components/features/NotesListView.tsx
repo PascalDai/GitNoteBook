@@ -231,7 +231,7 @@ export const NotesListView: React.FC = () => {
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               placeholder="搜索笔记标题、内容或标签..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-github-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-github-accent-emphasis focus:border-github-accent-emphasis bg-white dark:bg-github-canvas-default text-gray-900 dark:text-github-text placeholder-gray-400 dark:placeholder-github-text-secondary"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-github-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-github-accent-emphasis focus:border-github-accent-emphasis bg-white dark:bg-github-surface text-gray-900 dark:text-github-text placeholder-gray-400 dark:placeholder-github-text-secondary"
             />
           </div>
 
@@ -243,7 +243,7 @@ export const NotesListView: React.FC = () => {
               onChange={(e) =>
                 handleFilterChange(e.target.value as "all" | "open" | "closed")
               }
-              className="px-3 py-2 border border-gray-300 dark:border-github-border rounded-lg bg-white dark:bg-github-canvas-default text-gray-900 dark:text-github-text focus:outline-none focus:ring-2 focus:ring-github-accent-emphasis"
+              className="px-3 py-2 border border-gray-300 dark:border-github-border rounded-lg bg-white dark:bg-github-surface text-gray-900 dark:text-github-text focus:outline-none focus:ring-2 focus:ring-github-accent-emphasis"
             >
               <option value="all">全部状态</option>
               <option value="open">进行中</option>

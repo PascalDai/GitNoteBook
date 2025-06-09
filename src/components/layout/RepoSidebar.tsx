@@ -165,7 +165,7 @@ export const RepoSidebar: React.FC<RepoSidebarProps> = ({ collapsed }) => {
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="搜索仓库..."
-            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-github-border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-github-accent-emphasis focus:border-github-accent-emphasis bg-white dark:bg-github-canvas-default text-gray-900 dark:text-github-text placeholder-gray-400 dark:placeholder-github-text-secondary"
+            className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 dark:border-github-border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-github-accent-emphasis focus:border-github-accent-emphasis bg-white dark:bg-github-surface text-gray-900 dark:text-github-text placeholder-gray-400 dark:placeholder-github-text-secondary"
           />
         </div>
       </div>

@@ -206,7 +206,7 @@ export const RepoSelectionPage: React.FC = () => {
               value={searchQuery}
               onChange={(e) => handleSearch(e.target.value)}
               placeholder="搜索仓库名称或描述..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-github-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-github-accent-emphasis focus:border-github-accent-emphasis bg-white dark:bg-github-canvas-default text-gray-900 dark:text-github-text placeholder-gray-400 dark:placeholder-github-text-secondary"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-github-border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-github-accent-emphasis focus:border-github-accent-emphasis bg-white dark:bg-github-surface text-gray-900 dark:text-github-text placeholder-gray-400 dark:placeholder-github-text-secondary"
             />
           </div>
         </div>
