@@ -62,7 +62,7 @@ export const MermaidDiagram: React.FC<MermaidDiagramProps> = ({
     try {
       // 方法1: 使用encodeURIComponent + btoa处理Unicode
       return btoa(
-        encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
+        encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (_, p1) => {
           return String.fromCharCode(parseInt(p1, 16));
         })
       );

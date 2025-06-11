@@ -1,0 +1,120 @@
+name: Build GitNoteBook
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号 (例如: v1.0.0)'
+        required: true
+        default: 'v0.1.0'
+        type: string
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: 'macos-latest'
+            args: '--target aarch64-apple-darwin'
+            name: 'macOS (Apple Silicon)'
+          - platform: 'macos-latest'
+            args: '--target x86_64-apple-darwin'
+            name: 'macOS (Intel)'
+          - platform: 'ubuntu-20.04'
+            args: ''
+            name: 'Linux'
+          - platform: 'windows-latest'
+            args: ''
+            name: 'Windows'
+
+    runs-on: ${{ matrix.platform }}
+    name: Build for ${{ matrix.name }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - name: Install dependencies (Ubuntu)
+        if: matrix.platform == 'ubuntu-20.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: Build frontend
+        run: pnpm build
+
+      - name: Build Tauri app
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: ${{ matrix.args }}
+          tagName: ${{ inputs.version || github.ref_name }}
+          releaseName: 'GitNoteBook ${{ inputs.version || github.ref_name }}'
+          releaseBody: |
+            ## GitNoteBook ${{ inputs.version || github.ref_name }}
+            
+            基于GitHub Issues的智能笔记管理系统
+            
+            ### 新特性
+            - 🎨 Mermaid图表渲染优化
+            - 📝 增强的Markdown编辑体验
+            - 🔄 跨平台同步支持
+            - 🌙 暗色模式支持
+            
+            ### 下载说明
+            - **macOS (Apple Silicon)**: 下载 `.dmg` 文件
+            - **macOS (Intel)**: 下载 `x86_64` 版本的 `.dmg` 文件  
+            - **Windows**: 下载 `.msi` 安装包
+            - **Linux**: 下载 `.AppImage` 或 `.deb` 包
+            
+            ### 安装须知
+            - macOS用户首次运行可能需要在"系统偏好设置 > 安全性与隐私"中允许应用运行
+            - Windows用户可能需要允许"来自未知发布者的应用"
+          releaseDraft: false
+          prerelease: false
+          includeDebug: false
+          includeRelease: true
+
+      - name: Upload artifacts (备份)
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.name }}-artifacts
+          path: |
+            src-tauri/target/*/release/bundle/*/*
+            src-tauri/target/*/release/bundle/*/*/* 
